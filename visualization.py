@@ -55,24 +55,25 @@ def class_distribution_figure(stats: dict[str, float | int]):
     colors = ["#6b7280", "#ef4444", "#facc15", "#16a34a"]
     figure, axis = plt.subplots(figsize=(6, 5.6), constrained_layout=True)
 
-    def percentage_label(percentage: float) -> str:
-        """Hide labels for tiny wedges that cannot hold readable text."""
-        return f"{percentage:.1f}%" if percentage >= 4 else ""
-
-    wedges, _, percentage_texts = axis.pie(
+    wedges, _ = axis.pie(
         values,
         labels=None,
         colors=colors,
-        autopct=percentage_label,
         startangle=90,
         counterclock=False,
-        pctdistance=0.76,
         wedgeprops={"width": 0.38, "edgecolor": "white", "linewidth": 2},
     )
-    for text in percentage_texts:
-        text.set_fontsize(9)
-        text.set_fontweight("bold")
-        text.set_color("#16251f")
+    axis.text(
+        0,
+        0,
+        "VALID\nPIXELS",
+        ha="center",
+        va="center",
+        fontsize=10,
+        fontweight="bold",
+        color="#356348",
+        linespacing=1.25,
+    )
     axis.legend(
         wedges,
         [f"{label} · {value:.1f}%" for label, value in zip(labels, values, strict=True)],
