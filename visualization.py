@@ -53,9 +53,37 @@ def class_distribution_figure(stats: dict[str, float | int]):
     labels = ["Non-vegetated", "Sparse", "Moderate", "Dense"]
     values = [stats["non_vegetated_pct"], stats["sparse_pct"], stats["moderate_pct"], stats["dense_pct"]]
     colors = ["#6b7280", "#ef4444", "#facc15", "#16a34a"]
-    figure, axis = plt.subplots(figsize=(5, 5), constrained_layout=True)
-    axis.pie(values, labels=labels, colors=colors, autopct="%1.1f%%", startangle=90, pctdistance=0.78)
-    axis.add_artist(plt.Circle((0, 0), 0.52, color="white"))
+    figure, axis = plt.subplots(figsize=(6, 5.6), constrained_layout=True)
+
+    def percentage_label(percentage: float) -> str:
+        """Hide labels for tiny wedges that cannot hold readable text."""
+        return f"{percentage:.1f}%" if percentage >= 4 else ""
+
+    wedges, _, percentage_texts = axis.pie(
+        values,
+        labels=None,
+        colors=colors,
+        autopct=percentage_label,
+        startangle=90,
+        counterclock=False,
+        pctdistance=0.76,
+        wedgeprops={"width": 0.38, "edgecolor": "white", "linewidth": 2},
+    )
+    for text in percentage_texts:
+        text.set_fontsize(9)
+        text.set_fontweight("bold")
+        text.set_color("#16251f")
+    axis.legend(
+        wedges,
+        [f"{label} · {value:.1f}%" for label, value in zip(labels, values, strict=True)],
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.02),
+        ncol=2,
+        frameon=False,
+        fontsize=9,
+        columnspacing=1.4,
+        handlelength=1.0,
+    )
     axis.set_title("Valid-pixel distribution")
     return figure
 
