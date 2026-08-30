@@ -234,6 +234,7 @@ with classes_tab:
     distribution = class_distribution_figure(stats)
     class_cols[1].pyplot(distribution, use_container_width=True)
     plt.close(distribution)
+    class_cols[1].caption("All class percentages are listed in the legend below the donut.")
     st.markdown(
         f"🟩 **Dense ≥ {dense_lower:.2f}** · 🟨 **Moderate {sparse_upper:.2f}–{dense_lower:.2f}** · "
         f"🟥 **Sparse 0–{sparse_upper:.2f}** · ⬛ **Non-vegetated < 0** · ⬜ **No data**"
