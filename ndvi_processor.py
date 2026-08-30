@@ -14,6 +14,18 @@ MAX_PIXELS = 25_000_000
 
 
 @dataclass(frozen=True)
+class NdviThresholds:
+    """Configurable, validated NDVI classification thresholds."""
+
+    sparse_upper: float = 0.2
+    dense_lower: float = 0.5
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.sparse_upper < self.dense_lower <= 1.0:
+            raise ValueError("Thresholds must satisfy 0 < sparse < dense <= 1.")
+
+
+@dataclass(frozen=True)
 class RasterBand:
     data: np.ndarray
     valid_mask: np.ndarray
@@ -76,17 +88,27 @@ def calculate_ndvi(red: RasterBand, nir: RasterBand) -> tuple[np.ndarray, np.nda
     return ndvi, valid
 
 
-def classify_ndvi(ndvi: np.ndarray, valid: np.ndarray) -> np.ndarray:
+def classify_ndvi(
+    ndvi: np.ndarray,
+    valid: np.ndarray,
+    thresholds: NdviThresholds | None = None,
+) -> np.ndarray:
     """Classify NDVI: 0 invalid, 1 non-vegetated, 2 sparse, 3 moderate, 4 dense."""
+    thresholds = thresholds or NdviThresholds()
     classes = np.zeros(ndvi.shape, dtype="uint8")
     classes[valid & (ndvi < 0.0)] = 1
-    classes[valid & (ndvi >= 0.0) & (ndvi < 0.2)] = 2
-    classes[valid & (ndvi >= 0.2) & (ndvi < 0.5)] = 3
-    classes[valid & (ndvi >= 0.5)] = 4
+    classes[valid & (ndvi >= 0.0) & (ndvi < thresholds.sparse_upper)] = 2
+    classes[valid & (ndvi >= thresholds.sparse_upper) & (ndvi < thresholds.dense_lower)] = 3
+    classes[valid & (ndvi >= thresholds.dense_lower)] = 4
     return classes
 
 
-def summarize_ndvi(ndvi: np.ndarray, valid: np.ndarray) -> dict[str, float | int]:
+def summarize_ndvi(
+    ndvi: np.ndarray,
+    valid: np.ndarray,
+    thresholds: NdviThresholds | None = None,
+) -> dict[str, float | int]:
+    thresholds = thresholds or NdviThresholds()
     values = ndvi[valid]
     total = values.size
     return {
@@ -95,9 +117,9 @@ def summarize_ndvi(ndvi: np.ndarray, valid: np.ndarray) -> dict[str, float | int
         "maximum": float(values.max()),
         "average": float(values.mean()),
         "non_vegetated_pct": float(np.count_nonzero(values < 0.0) / total * 100),
-        "sparse_pct": float(np.count_nonzero((values >= 0.0) & (values < 0.2)) / total * 100),
-        "moderate_pct": float(np.count_nonzero((values >= 0.2) & (values < 0.5)) / total * 100),
-        "dense_pct": float(np.count_nonzero(values >= 0.5) / total * 100),
+        "sparse_pct": float(np.count_nonzero((values >= 0.0) & (values < thresholds.sparse_upper)) / total * 100),
+        "moderate_pct": float(np.count_nonzero((values >= thresholds.sparse_upper) & (values < thresholds.dense_lower)) / total * 100),
+        "dense_pct": float(np.count_nonzero(values >= thresholds.dense_lower) / total * 100),
     }
 
 
