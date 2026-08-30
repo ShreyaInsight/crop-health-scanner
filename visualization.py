@@ -85,7 +85,7 @@ def class_distribution_figure(stats: dict[str, float | int]):
         columnspacing=1.4,
         handlelength=1.0,
     )
-    axis.set_title("Valid-pixel distribution")
+    axis.set_title("Health-class composition", pad=16)
     return figure
 
 
