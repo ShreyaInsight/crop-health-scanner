@@ -65,6 +65,16 @@ The interface allows the 0.2 and 0.5 boundaries to be adjusted.
 | Packaging | Docker |
 | Deployment | Streamlit Community Cloud |
 
+## Interface design system
+
+The interface uses an agricultural editorial visual language rather than a generic dashboard template:
+
+- **Palette:** soil, leaf, moss, wheat, clay, and paper tokens used consistently across the app.
+- **Typography:** Fraunces for expressive display headings and DM Sans for compact analytical text.
+- **Composition:** asymmetric workflow sections and a custom NDVI colour motif replace repetitive card grids.
+- **Motion:** restrained entrance, hover, and button feedback with reduced-motion accessibility support.
+- **Spacing:** responsive `clamp()` sizing, balanced line lengths, and content-driven height instead of fixed cards.
+
 ## Input requirements
 
 The two bands must:
